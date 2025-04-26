@@ -45,7 +45,10 @@ Users can add detailed logs for various events:
 
 **Frontend (Mobile App & Website):**
 
-- Flutter (using Dart)
+- Flask
+- Jinja
+- tailwindcss (v4)
+- alpinejs
 
 **API (for business integration):**
 
