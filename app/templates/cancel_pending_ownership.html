@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-10 bg-white p-8 rounded shadow">
+  <h2 class="text-2xl font-bold mb-6">Cancel Pending Ownership Change</h2>
+  <p class="mb-4">There is already a pending ownership change for this vehicle to <span class="font-semibold">{{ pending.email }}</span>.</p>
+  <p class="mb-6">Do you want to cancel this pending ownership change?</p>
+  <form method="post" class="flex gap-4">
+    <button type="submit" name="confirm" value="yes" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold">Yes, Cancel</button>
+    <button type="submit" name="confirm" value="no" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold">No, Go Back</button>
+  </form>
+</div>
+{% endblock %} 

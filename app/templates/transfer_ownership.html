@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-10 bg-white p-8 rounded shadow" x-data="{ showPending: false }">
+  <div class="flex items-center mb-6">
+    <a href="{{ url_for('main.view_vehicle', vehicle_id=vehicle.id) }}" class="mr-4 text-gray-500 hover:text-gray-800">
+      <span class="material-icons" style="font-size: 24px;">arrow_back</span>
+    </a>
+    <h2 class="text-2xl font-bold flex items-center">
+      <span class="material-icons text-indigo-500 mr-2" style="font-size: 24px;">swap_horiz</span>
+      Transfer Vehicle Ownership
+    </h2>
+  </div>
+  <template x-if="!showPending">
+    <div>
+      <form method="post" class="mb-6">
+        <label class="block text-gray-700 font-semibold mb-1">Search for user (username or email)</label>
+        <div class="flex mb-4">
+          <input type="text" name="search" class="w-full border rounded px-3 py-2 mr-2" placeholder="Username or email" required>
+          <button type="submit" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Search</button>
+        </div>
+      </form>
+      {% if search_results %}
+      <form method="post">
+        <input type="hidden" name="search" value="">
+        <label class="block text-gray-700 font-semibold mb-2">Select user to transfer ownership to:</label>
+        <div class="mb-4 max-h-48 overflow-y-auto border rounded">
+          {% for user in search_results %}
+          <label class="flex items-center px-3 py-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="user_id" value="{{ user.id }}" class="mr-2" required>
+            <span>{{ user.display_name or user.username }} ({{ user.email }})</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-1">Mileage (optional)</label>
+          <div class="relative">
+            <input type="number" name="mileage" class="w-full border rounded px-3 py-2 pr-16" min="{{ min_mileage }}" value="">
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 select-none">{{ unit }}</span>
+          </div>
+          <small class="text-gray-400">Must be at least {{ min_mileage }} {{ unit }} if provided</small>
+        </div>
+        <div class="mb-4">
+          <label class="flex items-center">
+            <input type="checkbox" name="confirm" class="mr-2" required>
+            <span class="text-red-600 font-semibold">I understand this is a permanent change and cannot be undone.</span>
+          </label>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <a href="{{ url_for('main.view_vehicle', vehicle_id=vehicle.id) }}" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold">Cancel</a>
+          <button type="submit" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Transfer Ownership</button>
+        </div>
+      </form>
+      {% endif %}
+      <div class="mt-4 text-center">
+        <a href="#" class="text-indigo-600 hover:underline" @click.prevent="showPending = true">New owner doesn't have a registered account?</a>
+      </div>
+    </div>
+  </template>
+  <template x-if="showPending">
+    <form method="post" id="pending-transfer-form">
+      <input type="hidden" name="search" value="">
+      <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-1">Email for pending transfer</label>
+        <input type="email" name="pending_email" id="pending_email" class="w-full border rounded px-3 py-2" placeholder="Recipient's email address" required>
+        <small class="text-gray-400">If the recipient does not have an account, enter their email to create a pending transfer.</small>
+        <p id="email-error" class="text-red-500 text-xs mt-1 hidden">Please enter a valid email address.</p>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-1">Mileage (optional)</label>
+        <div class="relative">
+          <input type="number" name="mileage" class="w-full border rounded px-3 py-2 pr-16" min="{{ min_mileage }}" value="">
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 select-none">{{ unit }}</span>
+        </div>
+        <small class="text-gray-400">Must be at least {{ min_mileage }} {{ unit }} if provided</small>
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center">
+          <input type="checkbox" name="confirm" class="mr-2" required>
+          <span class="text-red-600 font-semibold">I understand this is a permanent change and cannot be undone.</span>
+        </label>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <a href="#" @click.prevent="showPending = false" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold">Back</a>
+        <button type="submit" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Create Pending Transfer</button>
+      </div>
+    </form>
+  </template>
+</div>
+<script>
+  document.addEventListener('alpine:init', () => {
+    // Wait for Alpine to be ready, then add validation
+    document.addEventListener('submit', function(e) {
+      const form = e.target;
+      if (form && form.id === 'pending-transfer-form') {
+        const emailInput = form.querySelector('#pending_email');
+        const errorMsg = form.querySelector('#email-error');
+        const email = emailInput.value.trim();
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(email)) {
+          e.preventDefault();
+          errorMsg.classList.remove('hidden');
+          emailInput.classList.add('border-red-500');
+        } else {
+          errorMsg.classList.add('hidden');
+          emailInput.classList.remove('border-red-500');
+        }
+      }
+    }, true);
+  });
+</script>
+{% endblock %} 

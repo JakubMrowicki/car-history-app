@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 bg-white p-8 rounded shadow">
+  <h2 class="text-2xl font-bold mb-6">Vehicle Types</h2>
+  <a href="{{ url_for('admin.add_vehicle_type') }}"
+    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Add Vehicle
+    Type</a>
+  <form id="reorder-form" method="post" action="{{ url_for('admin.reorder_vehicle_types') }}">
+    <ul id="vehicle-type-list" class="divide-y divide-gray-200 mb-4">
+      {% for vt in vehicle_types %}
+      <li class="flex items-center py-2 cursor-move bg-gray-50 mb-1 rounded" draggable="true" data-id="{{ vt.id }}">
+        <span class="mr-2 flex items-center" aria-label="Drag handle">
+          <span class="material-icons text-gray-400" style="font-size: 20px;">drag_indicator</span>
+        </span>
+        <span class="flex-1">{{ vt.display_name }} <span class="text-xs text-gray-400">({{ vt.name }})</span></span>
+        <a href="{{ url_for('admin.edit_vehicle_type', type_id=vt.id) }}"
+          class="text-yellow-600 hover:text-yellow-900 mr-4 flex items-center"><span class="material-icons mr-1" style="font-size: 18px;">edit</span>Edit</a>
+        <button type="button" class="text-red-600 hover:text-red-900 flex items-center" onclick="deleteVehicleType({{ vt.id }})"><span class="material-icons mr-1" style="font-size: 18px;">delete</span>Delete</button>
+        <input type="hidden" name="order[]" value="{{ vt.id }}">
+      </li>
+      {% endfor %}
+    </ul>
+    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Save
+      Order</button>
+  </form>
+</div>
+<form id="delete-form" method="post" style="display:none;"></form>
+<script>
+  // Simple HTML5 drag-and-drop for reordering
+  const list = document.getElementById('vehicle-type-list')
+  let dragSrcEl = null
+  list.addEventListener('dragstart', function (e) {
+    dragSrcEl = e.target
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', dragSrcEl.outerHTML)
+    dragSrcEl.classList.add('opacity-50')
+  })
+  list.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (e.target.closest('li') && dragSrcEl !== e.target.closest('li')) {
+      e.target.closest('li').classList.add('bg-indigo-100');
+    }
+  });
+  list.addEventListener('dragleave', function (e) {
+    if (e.target.closest('li')) {
+      e.target.closest('li').classList.remove('bg-indigo-100');
+    }
+  });
+  list.addEventListener('drop', function (e) {
+    e.preventDefault();
+    const dropEl = e.target.closest('li');
+    if (dropEl && dragSrcEl !== dropEl) {
+      if (dropEl === list.firstElementChild) {
+        list.insertBefore(dragSrcEl, dropEl);
+      } else {
+        list.insertBefore(dragSrcEl, dropEl.nextSibling);
+      }
+      dropEl.classList.remove('bg-indigo-100');
+    }
+    dragSrcEl.classList.remove('opacity-50');
+    updateOrderInputs();
+  });
+  list.addEventListener('dragend', function (e) {
+    dragSrcEl.classList.remove('opacity-50')
+  })
+  function updateOrderInputs() {
+    const items = list.querySelectorAll('li')
+    items.forEach((li, idx) => {
+      li.querySelector('input[name="order[]"]').setAttribute('value', li.getAttribute('data-id'))
+    })
+  }
+  // Delete button handler
+  function deleteVehicleType(id) {
+    const form = document.getElementById('delete-form')
+    form.action = `/admin/vehicle_types/${id}/delete`
+    form.innerHTML = ''
+    form.method = 'post'
+    if (confirm('Are you sure you want to delete this vehicle type?')) {
+      form.submit()
+    }
+  }
+</script>
+{% endblock %}
