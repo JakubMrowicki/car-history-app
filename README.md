@@ -43,7 +43,7 @@ Users can add detailed logs for various events:
 - Flask-SQLAlchemy (ORM - Recommended)
 - Flask-Migrate / Alembic (Database Migrations - Recommended)
 
-**Frontend (Mobile App & Website):**
+**Frontend:**
 
 - Flask
 - Jinja
@@ -68,69 +68,62 @@ Users can add detailed logs for various events:
 - Git
 - Python 3.x and Pip
 - Docker and Docker Compose (Recommended for local PostgreSQL)
-- Flutter SDK
-- An IDE (like VS Code with Python and Flutter extensions)
+- An IDE (like VS Code with Python extensions)
 
 ### Installation & Setup
 
-1.  **Clone the repository:**
+1. **Clone the repository:**
 
-    ```bash
-    git clone git@github.com:JakubMrowicki/car-history-app.git
-    cd car-history-app
-    ```
+   ```bash
+   git clone git@github.com:JakubMrowicki/car-history-app.git
+   cd car-history-app
+   ```
 
-2.  **Backend Setup:**
+2. **Backend Setup:**
 
-    - Create and activate a virtual environment:
-      ```bash
-      python -m venv venv
-      source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-      ```
-    - Install Python dependencies:
-      ```bash
-      pip install -r requirements.txt
-      ```
-    - Set up environment variables: Copy `.env.example` to `.env` and fill in the required values (Database URL, Secret Key, Email settings, etc.).
-      ```bash
-      cp .env.example .env
-      # Edit .env with your details
-      ```
-    - Start PostgreSQL (using Docker is recommended):
-      ```bash
-      docker-compose up -d database # Assuming a docker-compose.yml exists
-      ```
-    - Apply database migrations:
-      ```bash
-      flask db upgrade
-      ```
+   - Create and activate a virtual environment:
+     ```bash
+     python -m venv venv
+     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+     ```
+   - Install Python dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - Set up environment variables: Copy `.env.example` to `.env` and fill in the required values (Database URL, Secret Key, Email settings, etc.).
+     ```bash
+     cp .env.example .env
+     # Edit .env with your details
+     ```
+   - Start PostgreSQL (using Docker is recommended):
+     ```bash
+     docker-compose up -d database # Assuming a docker-compose.yml exists
+     ```
+   - Apply database migrations:
+     ```bash
+     flask db upgrade
+     ```
 
-3.  **Frontend Setup:**
-    - Navigate to the Flutter project directory (e.g., `cd frontend`):
-    - Get Flutter dependencies:
-      ```bash
-      flutter pub get
-      ```
+3. **Frontend Setup:**
+   - Install frontend dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - Set up frontend environment variables in `.env` if needed
 
 ### Running the Application
 
-1.  **Run the Backend (Flask API):**
+1. **Run the Backend (Flask API):**
+   ```bash
+   flask run --port 5000
+   ```
 
-    ```bash
-    flask run
-    ```
+2. **Run the Frontend (Flask Web App):**
+   ```bash
+   flask run --port 5001
+   ```
 
-    (Ensure your virtual environment is activated and `.env` is configured)
-
-2.  **Run the Frontend (Flutter):**
-    - For Mobile (ensure an emulator/simulator is running or a device is connected):
-      ```bash
-      flutter run
-      ```
-    - For Web:
-      ```bash
-      flutter run -d chrome
-      ```
+   (Ensure your virtual environment is activated and `.env` is configured)
 
 ## Data Model / Database Schema
 
